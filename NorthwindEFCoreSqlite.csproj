@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Željko Brkić</Authors>
+    <Company />
+    <Description>Northwind Database with Entity Framework Core and Sqlite</Description>
+    <PackageTags>Northwind, SQLite, Entity Framework Core</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Northwind.sqlite" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Northwind.sqlite" PackageCopyToOutput="true">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.5" />
+  </ItemGroup>
+
+</Project>

@@ -8,6 +8,8 @@
     <Description>Northwind Database with Entity Framework Core and Sqlite</Description>
     <PackageTags>Northwind, SQLite, Entity Framework Core</PackageTags>
     <PackageProjectUrl>https://github.com/zbrkic/NorthwindEFCoreSqlite</PackageProjectUrl>
+    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.5" />
   </ItemGroup>
 

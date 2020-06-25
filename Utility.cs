@@ -8,23 +8,52 @@ namespace NorthwindEFCoreSqlite
 {
     public static class Utility
     {
+        private const string NorthwindDatabase = "Northwind.sqlite";
+        private const string NotebooksPath = "/notebooks";
+        private const string LibSqLitePclRaw = "SQLitePCLRaw.core.dll";
+        private const string NativeLib = "libe_sqlite3.so";
+
+        public static void Init()
+        {
+            CopyDatabase();
+            CopyNativeLib();
+        }
+
+        private static void CopyDatabase()
+        {
+            var nugetPath = GetNugetPath();
+            var dbFile = Directory.GetFiles(nugetPath, NorthwindDatabase, SearchOption.AllDirectories).First();
+            var destFile = Path.Combine(NotebooksPath, NorthwindDatabase);
+
+            File.Copy(dbFile, destFile, true);
+        }
+
         // SQLitePCLRaw is attempting to load the "libe_sqlite3.so" library using System.Runtime.InteropServices.NativeLibrary.
         // This doesn't account for the runtimes/$rid/native/*.dll layout.
         // This method will copy libe_sqlite3.so to the same path where SQLitePCLRaw is.
-        public static void CopyNativeLib()
+        private static void CopyNativeLib()
         {
-            const string libSQLitePCLRaw = "SQLitePCLRaw.core.dll";
-            const string nativeLib = "libe_sqlite3.so";
-
             var nugetPath = GetNugetPath();
-            var fallbacks = GetFallbacks();
-            var nativeLibFiles = Directory.GetFiles(nugetPath, nativeLib, SearchOption.AllDirectories);
-            var nativeLibFile = nativeLibFiles.First(l => fallbacks.Any(f => l.EndsWith($"/runtimes/{f}/native/{nativeLib}")));
-            var libSQLitePCLRawPath = Directory.GetFiles(nugetPath, libSQLitePCLRaw, SearchOption.AllDirectories).Single();
+            var nativeLibFiles = Directory.GetFiles(nugetPath, NativeLib, SearchOption.AllDirectories);
+            var nativeLibFile = GetNativeLibFileLinux64(nativeLibFiles);
+            var libSQLitePCLRawPath = Directory.GetFiles(nugetPath, LibSqLitePclRaw, SearchOption.AllDirectories).Single();
             var destFolder = Path.GetDirectoryName(libSQLitePCLRawPath);
-            var destFile = Path.Combine(destFolder, nativeLib);
+            var destFile = Path.Combine(destFolder, NativeLib);
 
             File.Copy(nativeLibFile, destFile, true);
+        }
+
+        private static string GetNativeLibFileLinux64(string[] nativeLibFiles)
+        {
+            return nativeLibFiles.First(nativeLib => nativeLib.EndsWith($"/runtimes/linux-x64/native/{NativeLib}"));
+        }
+
+        // cannot use it, interactive is buggy and cannot find 'Microsoft.DotNet.PlatformAbstractions'
+        private static string GetNativeLibFile(string[] nativeLibFiles)
+        {
+            var fallbacks = GetFallbacks();
+
+            return nativeLibFiles.First(nativeLib => fallbacks.Any(f => nativeLib.EndsWith($"/runtimes/{f}/native/{NativeLib}")));
         }
 
         private static string GetNugetPath()

@@ -9,21 +9,23 @@ namespace NorthwindEFCoreSqlite
     public static class Utility
     {
         private const string NorthwindDatabase = "Northwind.sqlite";
-        private const string NotebooksPath = "/notebooks";
+        private const string NotebooksPath = "notebooks";
         private const string LibSqLitePclRaw = "SQLitePCLRaw.core.dll";
         private const string NativeLib = "libe_sqlite3.so";
+
+        private static readonly string HomePath = Environment.GetEnvironmentVariable("HOME");
+        private static readonly string NugetPath = Path.Combine(HomePath, ".nuget", "packages");
 
         public static void Init()
         {
             CopyDatabase();
             CopyNativeLib();
         }
-
+        
         private static void CopyDatabase()
         {
-            var nugetPath = GetNugetPath();
-            var dbFile = Directory.GetFiles(nugetPath, NorthwindDatabase, SearchOption.AllDirectories).First();
-            var destFile = Path.Combine(NotebooksPath, NorthwindDatabase);
+            var dbFile = Directory.GetFiles(NugetPath, NorthwindDatabase, SearchOption.AllDirectories).First();
+            var destFile = Path.Combine(HomePath, NotebooksPath, NorthwindDatabase);
 
             File.Copy(dbFile, destFile, true);
         }
@@ -33,10 +35,9 @@ namespace NorthwindEFCoreSqlite
         // This method will copy libe_sqlite3.so to the same path where SQLitePCLRaw is.
         private static void CopyNativeLib()
         {
-            var nugetPath = GetNugetPath();
-            var nativeLibFiles = Directory.GetFiles(nugetPath, NativeLib, SearchOption.AllDirectories);
+            var nativeLibFiles = Directory.GetFiles(NugetPath, NativeLib, SearchOption.AllDirectories);
             var nativeLibFile = GetNativeLibFileLinux64(nativeLibFiles);
-            var libSQLitePCLRawPath = Directory.GetFiles(nugetPath, LibSqLitePclRaw, SearchOption.AllDirectories).Single();
+            var libSQLitePCLRawPath = Directory.GetFiles(NugetPath, LibSqLitePclRaw, SearchOption.AllDirectories).Single();
             var destFolder = Path.GetDirectoryName(libSQLitePCLRawPath);
             var destFile = Path.Combine(destFolder, NativeLib);
 
@@ -54,14 +55,6 @@ namespace NorthwindEFCoreSqlite
             var fallbacks = GetFallbacks();
 
             return nativeLibFiles.First(nativeLib => fallbacks.Any(f => nativeLib.EndsWith($"/runtimes/{f}/native/{NativeLib}")));
-        }
-
-        private static string GetNugetPath()
-        {
-            var userProfileVar = Environment.GetEnvironmentVariable("HOME");
-            var nugetPath = Path.Combine(userProfileVar, ".nuget", "packages");
-
-            return nugetPath;
         }
 
         private static IReadOnlyList<string> GetFallbacks()
